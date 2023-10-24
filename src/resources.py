@@ -1,10 +1,11 @@
 from flask import request, jsonify
 
-from .database.models import Order, Item, OrderItem, AddressNode
+from .database.models import Order, Item, OrderItem, AddressNode, User
 from src import db, app
 
 import json
 
+from flask_login import login_user
 
 @app.route('/create_order', methods=['POST'])
 def create_order():

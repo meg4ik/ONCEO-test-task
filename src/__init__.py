@@ -1,11 +1,13 @@
-from flask import Flask
+from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_admin import Admin
-from flask_security import Security, SQLAlchemyUserDatastore
 from os import path
+from werkzeug.security import check_password_hash
 
 from flask_admin.contrib.sqla import ModelView
+
+from flask_login import LoginManager, login_user, logout_user, login_required
 
 from .config import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, SECRET, SECURITY_PASSWORD_SALT
 
@@ -13,7 +15,9 @@ temp_dir = path.abspath(path.dirname(__file__))
 
 app = Flask(__name__, template_folder=path.join(temp_dir, 'templates'))
 
-app.config['SECRET_KEY'] = SECRET
+
+
+app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECURITY_REGISTERABLE'] = True
@@ -23,6 +27,8 @@ app.config['DEBUG'] = True
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+
 
 from .admin_view import OrderItemModelView, OrderModelView, ItemModelView, AdressModelView
 admin = Admin(app, name='My Admin', template_mode='bootstrap3')
@@ -36,9 +42,33 @@ admin.add_view(OrderModelView(Order, db.session))
 admin.add_view(ItemModelView(Item, db.session))
 admin.add_view(AdressModelView(AddressNode, db.session))
 
+from .forms import LoginForm
 
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+
+        if user is not None and user.check_password(form.password.data):
+            login_user(user)
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('admin.index'))
+        else:
+            flash('Invalid username or password')
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
 
 from . import resources
 from .database import models

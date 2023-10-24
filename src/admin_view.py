@@ -1,17 +1,27 @@
 import uuid
 
-# from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
-# from flask import request, redirect, url_for
-# from flask_security import current_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask import flash, redirect, request, url_for
 
-class ItemModelView(ModelView):
+class AuthenticatedModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        
+        return redirect(url_for('login', next=request.url))
+    
+
+class ItemModelView(AuthenticatedModelView):
     column_list = ['id', 'title', 'color', 'weigth', 'price']
 
-class AdressModelView(ModelView):
+
+class AdressModelView(AuthenticatedModelView):
     column_list = ['id', 'address', 'prev_node', 'order_id']
+
     
-class OrderModelView(ModelView):
+class OrderModelView(AuthenticatedModelView):
 
     column_list = ['id', 'uuid', 'created_date', 'status']
 
@@ -25,7 +35,7 @@ class OrderModelView(ModelView):
         if not form.uuid.data:
             model.uuid = str(uuid.uuid4())
 
-class OrderItemModelView(ModelView):
+class OrderItemModelView(AuthenticatedModelView):
 
     column_list = ['id', 'uuid', 'item_id', 'order_id', 'count']
 
