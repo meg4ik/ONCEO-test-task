@@ -11,6 +11,7 @@ MYSQL_PASSWORD=os.environ.get("MYSQL_PASSWORD")
 
 SECRET=os.environ.get("SECRET")
 
-
 REDIS_HOST=os.environ.get("REDIS_HOST")
 REDIS_PORT=os.environ.get("REDIS_PORT")
+
+SECURITY_PASSWORD_SALT=os.environ.get("SECURITY_PASSWORD_SALT")
