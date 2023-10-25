@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_admin import Admin
 from os import path
-from celery import Celery
+# from celery import Celery
 
 from flask_admin.contrib.sqla import ModelView
 

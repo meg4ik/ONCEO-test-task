@@ -1,10 +1,16 @@
 # ONCEO-test-task
 
-Створення користувача
+##Створення користувача
 
 ```sh
 python wsgi.py create_user --username your_username --password your_password
 ```
+
+##Запуск в контейнерах
+```sh
+docker-compose up --build
+```
+
 
 ##створення замовлення
 
