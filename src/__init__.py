@@ -23,16 +23,10 @@ app.config['SECURITY_PASSWORD_SALT'] = SECURITY_PASSWORD_SALT
 
 app.config['DEBUG'] = True
 
-from kombu import Exchange, Queue
+# from src import celery_config
 
-app.config['BROKER_URL'] = f"redis://{REDIS_HOST}:{REDIS_PORT}"
-app.config['CELERY_QUEUES'] = (
-    Queue('default', Exchange('default'), routing_key='default'),
-)
-app.config['CELERY_IMPORTS'] = ('src.tasks',)
-
-celery = Celery(app.name, broker=app.config['BROKER_URL'])
-celery.conf.update(app.config)
+# celery = Celery(app.name)
+# celery.config_from_object(celery_config)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
