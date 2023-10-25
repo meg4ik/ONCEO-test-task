@@ -10,4 +10,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["python", "wsgi.py"]
+EXPOSE 5000
+
+RUN chmod a+x docker/*.sh

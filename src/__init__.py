@@ -21,7 +21,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECURITY_REGISTERABLE'] = True
 app.config['SECURITY_PASSWORD_SALT'] = SECURITY_PASSWORD_SALT
 
-app.config['DEBUG'] = True
+app.config['DEBUG'] = False
 
 # from src import celery_config
 
