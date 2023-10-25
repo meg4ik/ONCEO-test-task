@@ -6,12 +6,13 @@
 python wsgi.py create_user --username your_username --password your_password
 ```
 
-##створення заказу
+##створення замовлення
 
 ```sh
 /create_order
 ```
-
+Привклад:
+```sh
 {
   "items": [
     {"id": "1", "count": 2},
@@ -21,6 +22,7 @@ python wsgi.py create_user --username your_username --password your_password
     "456 Market St, Cityville",
   ]
 }
+```
 
 ##адмін панель
 ```sh
