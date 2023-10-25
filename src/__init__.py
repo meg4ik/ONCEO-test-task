@@ -3,21 +3,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_admin import Admin
 from os import path
-from werkzeug.security import check_password_hash
+from celery import Celery
 
 from flask_admin.contrib.sqla import ModelView
 
 from flask_login import LoginManager, login_user, logout_user, login_required
 
-from .config import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, SECRET, SECURITY_PASSWORD_SALT
+from .config import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, SECRET, SECURITY_PASSWORD_SALT,REDIS_HOST, REDIS_PORT
 
 temp_dir = path.abspath(path.dirname(__file__))
 
 app = Flask(__name__, template_folder=path.join(temp_dir, 'templates'))
 
-
-
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = SECRET
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECURITY_REGISTERABLE'] = True
@@ -25,10 +23,19 @@ app.config['SECURITY_PASSWORD_SALT'] = SECURITY_PASSWORD_SALT
 
 app.config['DEBUG'] = True
 
+from kombu import Exchange, Queue
+
+app.config['BROKER_URL'] = f"redis://{REDIS_HOST}:{REDIS_PORT}"
+app.config['CELERY_QUEUES'] = (
+    Queue('default', Exchange('default'), routing_key='default'),
+)
+app.config['CELERY_IMPORTS'] = ('src.tasks',)
+
+celery = Celery(app.name, broker=app.config['BROKER_URL'])
+celery.conf.update(app.config)
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
-
 
 from .admin_view import OrderItemModelView, OrderModelView, ItemModelView, AdressModelView
 admin = Admin(app, name='My Admin', template_mode='bootstrap3')

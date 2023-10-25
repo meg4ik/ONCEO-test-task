@@ -3,6 +3,7 @@ import uuid
 from flask_admin.contrib.sqla import ModelView
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask import flash, redirect, request, url_for
+from .tasks import write_status_change_to_file
 
 class AuthenticatedModelView(ModelView):
     def is_accessible(self):
@@ -34,6 +35,11 @@ class OrderModelView(AuthenticatedModelView):
     def on_model_change(self, form, model, is_created):
         if not form.uuid.data:
             model.uuid = str(uuid.uuid4())
+
+        if not is_created:
+            if 'status' in form:
+                new_status = form.status.data
+                write_status_change_to_file.delay(model.id, new_status)
 
 class OrderItemModelView(AuthenticatedModelView):
 
