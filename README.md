@@ -1,4 +1,4 @@
-# ONCEO-test-task
+# EPAM-test-task
 
 ##Створення користувача
 
@@ -39,3 +39,4 @@ docker-compose up --build
 ```sh
 /login
 ```
+
