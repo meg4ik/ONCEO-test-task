@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_admin import Admin
 from os import path
-# from celery import Celery
+from celery import Celery
 
 from flask_admin.contrib.sqla import ModelView
 
@@ -23,21 +23,21 @@ app.config['SECURITY_PASSWORD_SALT'] = SECURITY_PASSWORD_SALT
 
 app.config['DEBUG'] = False
 
-# from src import celery_config
+from src import celery_config
 
-# celery = Celery(app.name)
-# celery.config_from_object(celery_config)
+celery = Celery(app.name)
+celery.config_from_object(celery_config)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from .admin_view import OrderItemModelView, OrderModelView, ItemModelView, AdressModelView
+from .admin_view import OrderItemModelView, OrderModelView, ItemModelView, AdressModelView, UserModelView, RoleModelView
 admin = Admin(app, name='My Admin', template_mode='bootstrap3')
 
 from .database.models import Item, Order, OrderItem, User, Role, AddressNode
 
-admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Role, db.session))
+admin.add_view(UserModelView(User, db.session))
+admin.add_view(RoleModelView(Role, db.session))
 admin.add_view(OrderItemModelView(OrderItem, db.session))
 admin.add_view(OrderModelView(Order, db.session))
 admin.add_view(ItemModelView(Item, db.session))

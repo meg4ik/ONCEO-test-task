@@ -21,6 +21,12 @@ class ItemModelView(AuthenticatedModelView):
 class AdressModelView(AuthenticatedModelView):
     column_list = ['id', 'address', 'prev_node', 'order_id']
 
+class UserModelView(AuthenticatedModelView):
+    ...
+
+class RoleModelView(AuthenticatedModelView):
+    ...
+
     
 class OrderModelView(AuthenticatedModelView):
 

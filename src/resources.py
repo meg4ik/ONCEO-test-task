@@ -1,11 +1,9 @@
-from flask import request, jsonify
+from flask import request, jsonify, abort, Response
 
 from .database.models import Order, Item, OrderItem, AddressNode, User
 from src import db, app
-
+from flask_login import login_required
 import json
-
-from flask_login import login_user
 
 @app.route('/create_order', methods=['POST'])
 def create_order():
@@ -44,3 +42,45 @@ def create_order():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/get_order/<string:order_uuid>', methods=['GET'], endpoint='get_specific_order')
+@login_required
+def create_order(order_uuid):
+    order = Order.query.filter_by(uuid=order_uuid).first()
+
+    if order is None:
+        abort(404, description="Order not found")
+
+    order_items = OrderItem.query.filter_by(order_id=order.id).all()
+
+    items_info = []
+    for order_item in order_items:
+        item = Item.query.get(order_item.item_id)
+        if item:
+            items_info.append({
+                'id': item.id,
+                'title': item.title,
+                'color': item.color,
+                'weight': item.weigth,
+                'price': item.price,
+                'count': order_item.count
+            })
+
+    adresses = []
+    node = AddressNode.query.filter_by(order_id=order.id, prev_node=None).first()
+    if node:
+        adresses.append(node.address)
+        while True:
+            next_node = AddressNode.query.filter_by(order_id=order.id, prev_node=None).first()
+    
+    response = {
+        'order_id': order.id,
+        'order_uuid': order.uuid,
+        'order_status': order.status.value,
+        'created_date': order.created_date.isoformat(),
+        'items': items_info
+    }
+    response_json = json.dumps(response, ensure_ascii=False)
+    response = Response(response_json, content_type="application/json; charset=utf-8")
+    return response
