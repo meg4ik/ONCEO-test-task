@@ -1,4 +1,4 @@
-# EPAM-test-task
+# ONCEO-test-task
 
 ##Створення користувача
 
@@ -28,6 +28,12 @@ docker-compose up --build
     "456 Market St, Cityville",
   ]
 }
+```
+
+##отримання замовлення
+
+```sh
+/get_order/<string:order_uuid>
 ```
 
 ##адмін панель

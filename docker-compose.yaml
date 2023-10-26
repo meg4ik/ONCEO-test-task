@@ -28,8 +28,7 @@ services:
   celery:
     build: .
     command: celery -A src.tasks.celery worker --loglevel=info
-    volumes:
-      - .:/app
+    # command: celery -A src.tasks.celery worker --loglevel=debug
     depends_on:
       - db
       - redis

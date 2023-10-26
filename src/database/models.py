@@ -5,6 +5,9 @@ from flask_security import UserMixin
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from sqlalchemy import event
+from src.tasks import write_status_change_to_file
+
 roles_users = db.Table('roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
     db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
@@ -89,3 +92,7 @@ class AddressNode(db.Model):
     order_id = db.Column(db.ForeignKey('order.id'), primary_key=True)
 
 
+@event.listens_for(Order.status, 'set', propagate=True)
+def status_change_listener(target, value, oldvalue, initiator):
+    if oldvalue is not None and oldvalue != value: 
+        write_status_change_to_file.apply_async(args=[target.id, value])
