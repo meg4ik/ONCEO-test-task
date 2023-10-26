@@ -73,6 +73,7 @@ def create_order(order_uuid):
         adresses.append(node.address)
         while True:
             next_node = AddressNode.query.filter_by(order_id=order.id, prev_node=None).first()
+            break
     
     response = {
         'order_id': order.id,

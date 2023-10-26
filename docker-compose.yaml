@@ -5,19 +5,18 @@ services:
     image: mysql:5.7
     env_file:
       - .env-non-dev
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_DATABASE: 'mydatabase'
+      MYSQL_ROOT_PASSWORD: root
     volumes:
       - db_data:/var/lib/mysql
-
-  redis:
-    image: redis:7
-    container_name: redis_app
-    command: --port 5370
-    expose:
-      - 5370
+    command: --default-authentication-plugin=mysql_native_password
 
   web:
     build:
       context: .
+    command: ["python", "wsgi.py", "--host=0.0.0.0", "--port=5000"]
     ports:
       - "5000:5000"
     env_file:
@@ -25,6 +24,23 @@ services:
     depends_on:
       - db
       - redis
+
+  celery:
+    build: .
+    command: celery -A src.tasks.celery worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+
+  redis:
+    image: redis:7
+    container_name: redis_app
+    command: --port 6379
+    expose:
+      - 6379
+
 
 volumes:
   db_data:

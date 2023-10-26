@@ -11,5 +11,3 @@ RUN pip install -r requirements.txt
 COPY . .
 
 EXPOSE 5000
-
-RUN chmod a+x docker/*.sh
