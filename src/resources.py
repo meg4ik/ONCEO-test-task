@@ -1,9 +1,10 @@
 from flask import request, jsonify, abort, Response
 
 from .database.models import Order, Item, OrderItem, AddressNode, User
-from src import db, app
+from src import db, app, jsonrpc
 from flask_login import login_required
 import json
+from flask_login import login_user
 
 @app.route('/create_order', methods=['POST'])
 def create_order():
@@ -45,6 +46,7 @@ def create_order():
 
 
 @app.route('/get_order/<string:order_uuid>', methods=['GET'], endpoint='get_specific_order')
+# @jsonrpc.method('App.index')
 @login_required
 def create_order(order_uuid):
     order = Order.query.filter_by(uuid=order_uuid).first()
@@ -83,8 +85,19 @@ def create_order(order_uuid):
         'order_uuid': order.uuid,
         'order_status': order.status.value,
         'created_date': order.created_date.isoformat(),
-        'items': items_info
+        'items': items_info,
+        'adresses':adresses
     }
     response_json = json.dumps(response, ensure_ascii=False)
     response = Response(response_json, content_type="application/json; charset=utf-8")
     return response
+
+@jsonrpc.method('App.login')
+def login(username: str, password: str) -> str:
+    user = User.query.filter_by(username=username).first()
+
+    if user and user.check_password(password):
+        login_user(user)
+        return "Done"
+
+    return "Wrong"

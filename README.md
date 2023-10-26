@@ -46,3 +46,15 @@ docker-compose up --build
 /login
 ```
 
+JSONRPC login
+```sh
+{
+    "jsonrpc": "2.0",
+    "method": "App.login",
+    "params": {
+        "username": "login",
+        "password": "pass"
+    },
+    "id": 1
+}
+```

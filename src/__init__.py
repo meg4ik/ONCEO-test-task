@@ -6,6 +6,7 @@ from os import path
 from celery import Celery
 
 from flask_admin.contrib.sqla import ModelView
+from flask_jsonrpc import JSONRPC
 
 from flask_login import LoginManager, login_user, logout_user, login_required
 
@@ -27,6 +28,8 @@ from src import celery_config
 
 celery = Celery(app.name)
 celery.config_from_object(celery_config)
+
+jsonrpc = JSONRPC(app, '/api', enable_web_browsable_api=True)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
